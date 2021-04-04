@@ -11,11 +11,34 @@ import ARKit
 
 class ViewController: UIViewController, ARSCNViewDelegate {
 
+    var trackingStatus: String = ""
+
+    // MARK: - Outlets
     @IBOutlet var sceneView: ARSCNView!
+    @IBOutlet weak var statusLabel: UILabel!
+    @IBOutlet weak var startButton: UIButton!
+    @IBOutlet weak var styleButton: UIButton!
+    @IBOutlet weak var resetButton: UIButton!
+
+   // MARK: - Actions
+   @IBAction func startButtonPressed(_ sender: Any) {
+   }
+
+   @IBAction func styleButtonPressed(_ sender: Any) {
+   }
+
+   @IBAction func resetButtonPressed(_ sender: Any) {
+   }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        self.initSceneView()
+        self.initScene()
+        self.initARSession()
+        //self.loadModels()
+    }
+
+    func initScene(){
         // Set the view's delegate
         sceneView.delegate = self
         
@@ -57,18 +80,79 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
 */
     
+    func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
+        switch camera.trackingState {
+            // 1
+            case .notAvailable:
+                trackingStatus = "Tacking:  Not available!"
+            // 2
+            case .normal:
+                trackingStatus = "Tracking: All Good!"
+            // 3
+            case .limited(let reason):
+                switch reason {
+                case .excessiveMotion:
+                    trackingStatus = "Tracking: Limited due to excessive motion!"
+                // 3.1
+                case .insufficientFeatures:
+                    trackingStatus = "Tracking: Limited due to insufficient features!"
+                // 3.2
+                case .initializing:
+                    trackingStatus = "Tracking: Initializing..."
+                // 3.3
+                case .relocalizing:
+                    trackingStatus = "Tracking: Relocalizing..."
+                }
+            }
+    }
+    
     func session(_ session: ARSession, didFailWithError error: Error) {
         // Present an error message to the user
+        trackingStatus = "AR Session Failure: \(error)"
         
     }
     
     func sessionWasInterrupted(_ session: ARSession) {
         // Inform the user that the session has been interrupted, for example, by presenting an overlay
+        trackingStatus = "AR Session Was Interrupted!"
         
     }
     
     func sessionInterruptionEnded(_ session: ARSession) {
         // Reset tracking and/or remove existing anchors if consistent tracking is required
+        trackingStatus = "AR Session Interruption Ended"
+
+    }
+
+    func initARSession(){
+        guard ARWorldTrackingConfiguration.isSupported else {
+            print("*** ARConfig: AR World Tracking Not Supported")
+            return
+        }
         
+        let config = ARWorldTrackingConfiguration()
+        config.worldAlignment = .gravity
+        config.providesAudioData = false
+        
+        sceneView.session.run(config)
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer,
+                  updateAtTime time: TimeInterval) {
+        DispatchQueue.main.async {
+            //self.statusLabel.text = self.trackingStatus
+            print(self.trackingStatus)
+         }
+    }
+    
+    func initSceneView() {
+            sceneView.delegate = self
+            sceneView.showsStatistics = true
+            sceneView.debugOptions = [
+                ARSCNDebugOptions.showFeaturePoints,
+                ARSCNDebugOptions.showWorldOrigin,
+                SCNDebugOptions.showBoundingBoxes,
+                SCNDebugOptions.showWireframe
+            ]
     }
 }
