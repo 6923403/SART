@@ -20,7 +20,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var trackingStatus: String = ""
     var focusNode: SCNNode!
     var diceNodes: [SCNNode] = []
-    var diceCount: Int = 5
+    var diceCount: Int = 1
     var diceStyle: Int = 0
     var diceOffset: [SCNVector3] = [SCNVector3(0.0,0.0,0.0),
                                     SCNVector3(-0.05, 0.00, 0.0),
@@ -109,8 +109,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.showsStatistics = true
         sceneView.debugOptions = [
             ARSCNDebugOptions.showFeaturePoints,
-            //ARSCNDebugOptions.showWorldOrigin,
-            SCNDebugOptions.showBoundingBoxes,
+            //ARSCNDebugOptions.showWorldOrigin, //轴
+            //SCNDebugOptions.showBoundingBoxes,
             SCNDebugOptions.showWireframe
         ]
     }
